@@ -7,6 +7,8 @@ import sys
 import cli
 import os
 import time
+import os.path
+from os import path
 
 # Finds subdomains of a domain using Censys API
 def find_subdomains(domain, api_id, api_secret):
@@ -71,12 +73,27 @@ def main(domain, output_file, censys_api_id, censys_api_secret):
     time_ellapsed = round(end_time - start_time, 1)
     print_subdomains(domain, subdomains, time_ellapsed)
     save_subdomains_to_file(subdomains, output_file)
+    return subdomains
+
+def get_subdomains_for_api(domain):
+    censys_api_id = "44ea4a45-31ef-4b45-b0b6-0e60e0dd830d"
+    censys_api_secret = "fWRdn2hoExraAmwcxrDuqrFogQ8UXeah"
+    output_file = domain + ".txt"
+    
+    if path.exists(output_file):
+        f = open(output_file, "r")
+        data = f.readlines()
+        subdomains = [x.strip() for x in data] 
+    else:
+        subdomains = main(domain, output_file, censys_api_id, censys_api_secret)
+    
+    return subdomains
 
 if __name__ == "__main__":
     args = cli.parser.parse_args()
 
-    censys_api_id = None
-    censys_api_secret = None
+    censys_api_id = "44ea4a45-31ef-4b45-b0b6-0e60e0dd830d"
+    censys_api_secret = "fWRdn2hoExraAmwcxrDuqrFogQ8UXeah"
 
     if 'CENSYS_API_ID' in os.environ and 'CENSYS_API_SECRET' in os.environ:
         censys_api_id = os.environ['CENSYS_API_ID']
