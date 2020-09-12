@@ -12,7 +12,7 @@ def home():
     if 'domain' in request.args:
         domain = request.args['domain']
         subdomains = get_subdomains_for_api(domain)
-        return "Got sub-Domains - \n {}".format(subdomains)
+        return subdomains
     else:
         return "Error: No domain field provided. Please specify an domain."
 
