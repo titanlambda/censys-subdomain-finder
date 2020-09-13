@@ -9,6 +9,7 @@ import os
 import time
 import os.path
 from os import path
+import socket
 
 # Finds subdomains of a domain using Censys API
 def find_subdomains(domain, api_id, api_secret):
@@ -83,28 +84,44 @@ def get_subdomains_for_api(domain):
     if path.exists(output_file):
         f = open(output_file, "r")
         data = f.readlines()
-        subdomains = [x.strip() for x in data] 
+        subdomain_list = [x.strip() for x in data] 
     else:
-        subdomains = main(domain, output_file, censys_api_id, censys_api_secret)
+        subdomain_list = main(domain, output_file, censys_api_id, censys_api_secret)
+    return subdomain_list
+
+def get_subdomain_details(subdomain_hostnames):
+    subdomain_list = []
     
-    return subdomains
+    for subdomain_hostname in subdomain_hostnames:
+        print(subdomain_hostname)
+        subdomain_ip = socket.gethostbyname(subdomain_hostname)
+        subdomain = {}
+        subdomain["hostname"] = subdomain_hostname
+        subdomain["ip"] = subdomain_ip
+        subdomain_list.append(subdomain)
+    return subdomain_list
 
 if __name__ == "__main__":
-    args = cli.parser.parse_args()
 
-    censys_api_id = "44ea4a45-31ef-4b45-b0b6-0e60e0dd830d"
-    censys_api_secret = "fWRdn2hoExraAmwcxrDuqrFogQ8UXeah"
+    subdomain_names = get_subdomains_for_api("test.com")
+    print(subdomain_names)
+    # print(get_subdomain_details(subdomain_names))
 
-    if 'CENSYS_API_ID' in os.environ and 'CENSYS_API_SECRET' in os.environ:
-        censys_api_id = os.environ['CENSYS_API_ID']
-        censys_api_secret = os.environ['CENSYS_API_SECRET']
+    # args = cli.parser.parse_args()
 
-    if args.censys_api_id and args.censys_api_secret:
-        censys_api_id = args.censys_api_id
-        censys_api_secret = args.censys_api_secret
+    # censys_api_id = "44ea4a45-31ef-4b45-b0b6-0e60e0dd830d"
+    # censys_api_secret = "fWRdn2hoExraAmwcxrDuqrFogQ8UXeah"
 
-    if None in [ censys_api_id, censys_api_secret ]:
-        sys.stderr.write('[!] Please set your Censys API ID and secret from your environment (CENSYS_API_ID and CENSYS_API_SECRET) or from the command line.\n')
-        exit(1)
+    # if 'CENSYS_API_ID' in os.environ and 'CENSYS_API_SECRET' in os.environ:
+    #     censys_api_id = os.environ['CENSYS_API_ID']
+    #     censys_api_secret = os.environ['CENSYS_API_SECRET']
+
+    # if args.censys_api_id and args.censys_api_secret:
+    #     censys_api_id = args.censys_api_id
+    #     censys_api_secret = args.censys_api_secret
+
+    # if None in [ censys_api_id, censys_api_secret ]:
+    #     sys.stderr.write('[!] Please set your Censys API ID and secret from your environment (CENSYS_API_ID and CENSYS_API_SECRET) or from the command line.\n')
+    #     exit(1)
 		
-    main(args.domain, args.output_file, censys_api_id, censys_api_secret)
+    # main(args.domain, args.output_file, censys_api_id, censys_api_secret)

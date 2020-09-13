@@ -1,6 +1,7 @@
 import flask
 from flask import request
 from censys_subdomain_finder import get_subdomains_for_api
+import json
 
 app = flask.Flask(__name__)
 app.config["DEBUG"] = True
@@ -12,7 +13,8 @@ def home():
     if 'domain' in request.args:
         domain = request.args['domain']
         subdomains = get_subdomains_for_api(domain)
-        return subdomains
+        json_format = json.dumps(subdomains) 
+        return json_format
     else:
         return "Error: No domain field provided. Please specify an domain."
 
